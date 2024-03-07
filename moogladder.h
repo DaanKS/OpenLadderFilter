@@ -11,7 +11,6 @@ Special thanks to our lovely teachers: Pieter Suurmond, Ciska Vriezenga, Marc Gr
 #pragma once
 
 #include <array>
-//#include <atomic>
 #include <cmath>
 #include <numbers>
 
@@ -43,12 +42,8 @@ struct MoogLadder {
         currentCoefficients = coefficients;
     }
 
-    void calculateOmega(double criticalFrequency) {
-        omega = 2 * Pi * criticalFrequency / Fs;
-    }
-
-    void setFrequency (double frequency) {
-        calculateOmega(frequency);
+    void setCriticalFrequency (double frequency) {
+        calculateOmega (frequency);
         for (auto& component : components)
             component.calculateG (omega);
     }
@@ -129,7 +124,6 @@ private:
             g = (0.9892 * omega) - (0.4342 * std::pow (omega, 2.0)) + (0.1381 * std::pow (omega, 3.0)) - (0.0202 * std::pow (omega, 4.0));
         }
 
-
     private:
         double feedforward (double input) noexcept {
             auto zero = a * input + b * x1;
@@ -152,6 +146,9 @@ private:
         double g { 0.0 };
     };
 
+    void calculateOmega (double criticalFrequency) {
+        omega = 2 * Pi * criticalFrequency / Fs;
+    }
 
     LadderCoefficients currentCoefficients;
     std::array<MoogComponent, 4> components;
