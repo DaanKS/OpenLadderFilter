@@ -49,6 +49,7 @@ struct MoogLadder {
     }
 
     void setResonance (double resonance) {
+        res = resonance;
         currentResonance = resonance * (1.0029f + (0.0526f * omega) - (0.0926f * pow (omega, 2.0f)) + (0.0218f * pow (omega, 3.0f)));
     }
 
@@ -147,6 +148,7 @@ private:
 
     void calculateOmega (double criticalFrequency) {
         omega = 2 * Pi * criticalFrequency / Fs;
+        setResonance(res);
     }
 
     LadderCoefficients currentCoefficients;
@@ -156,5 +158,6 @@ private:
     double omega { 0.0 };
 
     double currentResonance { 0.0 };
+    double res { 0.0 };
     double pathE { 0.0 };
 };
