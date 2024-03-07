@@ -137,7 +137,6 @@ private:
             return y1;
         }
 
-
         double a = 1.0 / 1.3;
         double b = 0.3 / 1.3;
 
