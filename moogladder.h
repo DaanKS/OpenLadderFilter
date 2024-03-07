@@ -11,7 +11,7 @@ Special thanks to our lovely teachers: Pieter Suurmond, Ciska Vriezenga, Marc Gr
 #pragma once
 
 #include <array>
-#include <atomic>
+//#include <atomic>
 #include <cmath>
 #include <numbers>
 
@@ -23,20 +23,12 @@ struct MoogLadder {
     MoogLadder() {}
     MoogLadder (double sampleRate) : Fs (sampleRate) {}
 
-    MoogLadder (const MoogLadder& other) {
-        currentCoefficients.store (other.currentCoefficients.load());
-        omega = other.omega;
-        currentResonance = other.currentResonance;
-        criticalFrequency = other.criticalFrequency;
-        pathE = other.pathE;
-    }
-
     void prepare (double sampleRate) {
         Fs = sampleRate;
     }
 
     double process (double input) {
-        const auto [A, B, C, D, E] = currentCoefficients.load();
+        const auto [A, B, C, D, E] = currentCoefficients;
 
         const auto feed = 4.0 * currentResonance * (pathE - (tanh (input * 0.5)));
         const auto pathA = input - feed;
@@ -48,16 +40,15 @@ struct MoogLadder {
     }
 
     void setCoefficients (const LadderCoefficients& coefficients) noexcept {
-        currentCoefficients.store (coefficients);
+        currentCoefficients = coefficients;
     }
 
-    void calculateOmega() {
+    void calculateOmega(double criticalFrequency) {
         omega = 2 * Pi * criticalFrequency / Fs;
     }
 
     void setFrequency (double frequency) {
-        criticalFrequency = frequency;
-        calculateOmega();
+        calculateOmega(frequency);
         for (auto& component : components)
             component.calculateG (omega);
     }
@@ -162,14 +153,12 @@ private:
     };
 
 
-    std::atomic<LadderCoefficients> currentCoefficients;
+    LadderCoefficients currentCoefficients;
     std::array<MoogComponent, 4> components;
     double Pi = std::numbers::pi_v<double>;
-    double omega { 0.0 };
     double Fs { 44100.0 };
+    double omega { 0.0 };
 
     double currentResonance { 0.0 };
-    double criticalFrequency { 0.0 };
-
     double pathE { 0.0 };
 };
